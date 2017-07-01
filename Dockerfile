@@ -19,12 +19,13 @@ WORKDIR /app
 RUN \
     LATEST_TAG=`curl https://api.github.com/repos/${COPAY_REPO}/releases/latest -s | jq .name -r`; \
     git clone https://github.com/${COPAY_REPO}.git /app && \
-    npm run clean-all && \
-    npm run apply:bitpay && \
     echo '{ "allow_root": true }' > /root/.bowerrc && \
-    yarn --production --force --allow-root --config.interactive=false && \
-    npm run apply:bitpay
+    yarn --production --force --allow-root -q --config.interactive=false && \
+    npm run apply:bitpay && \
+    npm install -g tostr 
+    #&& yarn --production --force --allow-root --config.interactive=false && \
+
 
 ENTRYPOINT ["/init"]
 
-CMD ["npm","run start"]
+CMD ["npm","start"]
