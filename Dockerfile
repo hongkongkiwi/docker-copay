@@ -9,15 +9,16 @@ VOLUME ["/config"]
 
 EXPOSE 8100
 
-RUN apk add --no-cache make gcc g++ python ca-certificates curl bash git
+RUN apk add --no-cache make gcc g++ python ca-certificates curl bash git jq
 
 # Install copay run dependencies
-RUN npm install -g -q --production grunt-cli browserify uglify-js tostr
+RUN npm install -g -q --production grunt-cli browserify uglify-js tostr bower
 
 WORKDIR /app
 
 RUN \
-    curl -s -L https://github.com/${COPAY_REPO}/tarball/master | tar zx -C /app --strip-components=1 && \
+    LATEST_TAG=`curl https://api.github.com/repos/${COPAY_REPO}/releases/latest -s | jq .name -r`; \
+    git clone https://github.com/${COPAY_REPO}.git /app && \
     npm run clean-all && \
     npm run apply:bitpay && \
     echo '{ "allow_root": true }' > /root/.bowerrc && \
